@@ -113,10 +113,10 @@
 					.style('fill', function (d) {
 						return color(d.data.name)
 					})
-					.transition() // Start a transition
-					.duration(1000) // Set the duration to 1000 milliseconds
-					.style('opacity', 0) // Start from fully transparent
-					.style('opacity', 1) // End at fully opaque
+					.transition()
+					.duration(1000)
+					.style('opacity', 0)
+					.style('opacity', 1)
 
 				g.append('text')
 					.attr('transform', function (d) {
@@ -127,9 +127,9 @@
 					.text(function (d) {
 						return d.data.name
 					})
-					.transition() // Start a transition
-					.duration(1000) // Set the duration to 1000 milliseconds
-					.style('opacity', 0) // Start from fully transparent
+					.transition()
+					.duration(1000)
+					.style('opacity', 0)
 					.style('opacity', 1)
 			}
 

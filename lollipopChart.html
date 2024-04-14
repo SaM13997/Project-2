@@ -103,31 +103,29 @@
 					.enter()
 					.append('circle')
 					.attr('cx', (d) => x(d.name) + x.bandwidth() / 2)
-					.attr('cy', height - margin.top - margin.bottom) // Start from bottom
-					.attr('r', 0) // Initially with radius 0
+					.attr('cy', height - margin.top - margin.bottom)
+					.attr('r', 0)
 					.attr('fill', 'steelblue')
 					.transition() // Add transition
-					.delay((d, i) => i * 100) // Delay each circle based on its index
+					.delay((d, i) => i * 100)
 					.attr('cy', (d) => y(d.weight))
 					.attr('r', 5)
 
-				// Add lines with animation
 				svg
 					.selectAll('.line')
 					.data(data)
 					.enter()
 					.append('line')
 					.attr('x1', (d) => x(d.name) + x.bandwidth() / 2)
-					.attr('y1', height - margin.top - margin.bottom) // Start from bottom
+					.attr('y1', height - margin.top - margin.bottom)
 					.attr('x2', (d) => x(d.name) + x.bandwidth() / 2)
-					.attr('y2', height - margin.top - margin.bottom) // Start from bottom
+					.attr('y2', height - margin.top - margin.bottom)
 					.attr('stroke', 'black')
 					.transition() // Add transition
-					.delay((d, i) => i * 100) // Delay each line based on its index
+					.delay((d, i) => i * 100)
 					.attr('y2', (d) => y(d.weight))
 			}
 
-			// Call the function to create lollipop chart
 			createLollipopChart()
 		</script>
 	</body>

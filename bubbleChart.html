@@ -74,25 +74,19 @@
 			async function createBubbleChart() {
 				const data = await getPokemonData()
 
-				// Specify the dimensions of the chart.
 				const width = 928
 				const height = width
-				const margin = 1 // to avoid clipping the root circle stroke
-				const name = (d) => d.id // Name is Pokémon name
-				const group = (d) => '' // No group
+				const margin = 1
+				const name = (d) => d.id
+				const group = (d) => ''
 				const format = d3.format(',d')
 
-				// Create a pack layout.
 				const pack = d3
 					.pack()
 					.size([width - margin * 2, height - margin * 2])
 					.padding(3)
 
-				// Compute the hierarchy from the (flat) data; expose the values
-				// for each node; lastly apply the pack layout.
 				const root = pack(d3.hierarchy({ children: data }).sum((d) => d.value))
-
-				// Create the SVG container.
 				const svg = d3
 					.create('svg')
 					.attr('width', width)
@@ -104,7 +98,6 @@
 					)
 					.attr('text-anchor', 'middle')
 
-				// Place each (leaf) node according to the layout’s x and y values.
 				const node = svg
 					.append('g')
 					.selectAll()
@@ -112,33 +105,28 @@
 					.join('g')
 					.attr('transform', (d) => `translate(${d.x},${d.y})`)
 
-				// Add a title.
 				node.append('title').text((d) => `${d.data.id}\n${format(d.value)}`)
 
-				// Add a filled circle.
 				node
 					.append('circle')
 					.attr('fill-opacity', 0)
-					.attr('fill', () => getRandomPastelColor()) // Random pastel color
+					.attr('fill', () => getRandomPastelColor())
 					.attr('r', 0)
 					.transition()
 					.duration(1000)
 					.attr('r', (d) => d.r)
-					.attr('fill-opacity', 0.7) // Fade in the circle
+					.attr('fill-opacity', 0.7)
 
-				// Add a label.
 				const text = node
 					.append('text')
 					.attr('clip-path', (d) => `circle(${d.r})`)
 
-				// Add a tspan for the Pokémon name.
 				text
 					.append('tspan')
 					.attr('x', 0)
 					.attr('y', '-0.35em')
 					.text((d) => name(d.data))
 
-				// Add a tspan for the Pokémon's attack value.
 				text
 					.append('tspan')
 					.attr('x', 0)
