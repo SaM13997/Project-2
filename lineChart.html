@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Pokémon Population Over Years</title>
+		<link
+			href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+			rel="stylesheet"
+		/>
+	</head>
+
+	<body class="bg-gray-100 flex items-center justify-center h-screen">
+		<div class="bg-white p-6 rounded-lg shadow-lg">
+			<h1 class="text-2xl font-semibold mb-4">Pokémon Population Over Years</h1>
+			<div id="line-chart" class=""></div>
+		</div>
+
+		<script src="https://d3js.org/d3.v7.min.js"></script>
+		<script>
+			// Mock data for demonstration
+			const pokemonData = [
+				{ year: 1996, count: 151 },
+				{ year: 1997, count: 251 },
+				{ year: 1998, count: 386 },
+				{ year: 1999, count: 493 },
+				{ year: 2000, count: 649 },
+				{ year: 2001, count: 649 },
+				{ year: 2002, count: 649 },
+				{ year: 2003, count: 649 },
+				{ year: 2004, count: 649 },
+				{ year: 2005, count: 649 },
+				{ year: 2006, count: 649 },
+				{ year: 2007, count: 649 },
+				{ year: 2008, count: 649 },
+				{ year: 2009, count: 649 },
+				{ year: 2010, count: 649 },
+				{ year: 2011, count: 649 },
+				{ year: 2012, count: 649 },
+				{ year: 2013, count: 649 },
+				{ year: 2014, count: 721 },
+				{ year: 2015, count: 721 },
+				{ year: 2016, count: 807 },
+				{ year: 2017, count: 807 },
+				{ year: 2018, count: 807 },
+				{ year: 2019, count: 807 },
+				{ year: 2020, count: 898 },
+				{ year: 2021, count: 898 },
+				{ year: 2022, count: 898 },
+				{ year: 2023, count: 898 },
+				{ year: 2024, count: 898 },
+			]
+
+			// Function to create line chart with entry animation
+			function createLineChartWithAnimation() {
+				const margin = { top: 30, right: 30, bottom: 50, left: 60 }
+				const width = 1000 - margin.left - margin.right
+				const height = 500 - margin.top - margin.bottom
+
+				const svg = d3
+					.select('#line-chart')
+					.append('svg')
+					.attr('width', width + margin.left + margin.right)
+					.attr('height', height + margin.top + margin.bottom)
+					.append('g')
+					.attr('transform', `translate(${margin.left},${margin.top})`)
+
+				const x = d3
+					.scaleLinear()
+					.domain([
+						d3.min(pokemonData, (d) => d.year),
+						d3.max(pokemonData, (d) => d.year),
+					])
+					.range([0, width])
+
+				const y = d3
+					.scaleLinear()
+					.domain([0, d3.max(pokemonData, (d) => d.count)])
+					.range([height, 0])
+
+				const line = d3
+					.line()
+					.x((d) => x(d.year))
+					.y((d) => y(d.count))
+
+				svg
+					.append('path')
+					.datum(pokemonData)
+					.attr('fill', 'none')
+					.attr('stroke', 'steelblue')
+					.attr('stroke-width', 2)
+					.attr('d', line)
+					.attr('stroke-dasharray', function () {
+						return this.getTotalLength() + ' ' + this.getTotalLength()
+					})
+					.attr('stroke-dashoffset', function () {
+						return this.getTotalLength()
+					})
+					.transition()
+					.duration(1000)
+					.ease(d3.easeLinear)
+					.attr('stroke-dashoffset', 0)
+
+				svg
+					.append('g')
+					.attr('transform', `translate(0,${height})`)
+					.call(d3.axisBottom(x).ticks(10).tickFormat(d3.format('d')))
+					.selectAll('text')
+					.attr('opacity', 0)
+					.transition()
+					.delay(1000)
+					.duration(500)
+					.attr('opacity', 1)
+
+				svg
+					.append('g')
+					.call(d3.axisLeft(y))
+					.selectAll('text')
+					.attr('opacity', 0)
+					.transition()
+					.delay(1000)
+					.duration(500)
+					.attr('opacity', 1)
+
+				svg
+					.selectAll('.dot')
+					.data(pokemonData)
+					.enter()
+					.append('circle')
+					.attr('cx', (d) => x(d.year))
+					.attr('cy', height)
+					.attr('r', 0)
+					.attr('fill', 'steelblue')
+					.transition()
+					.delay((d, i) => i * 50)
+					.duration(500)
+					.attr('cy', (d) => y(d.count))
+					.attr('r', 5)
+
+				svg
+					.selectAll('.text')
+					.data(pokemonData)
+					.enter()
+					.append('text')
+					.attr('x', (d) => x(d.year))
+					.attr('y', height)
+					.text((d) => d.count)
+					.attr('text-anchor', 'middle')
+					.attr('font-size', '12px')
+					.attr('fill', 'black')
+					.transition()
+					.delay((d, i) => i * 50)
+					.duration(500)
+					.attr('y', (d) => y(d.count) - 10)
+			}
+
+			// Call the function to create line chart with entry animation
+			createLineChartWithAnimation()
+		</script>
+	</body>
+</html>

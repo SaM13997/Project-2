@@ -18,7 +18,7 @@ async function getPokemonData() {
 
 function createBarChart(data) {
 	console.log('in function')
-	const svgWidth = 600
+	const svgWidth = 6000
 	const svgHeight = 400
 	const margin = { top: 20, right: 20, bottom: 30, left: 50 }
 	const width = svgWidth - margin.left - margin.right
@@ -67,6 +67,57 @@ function createBarChart(data) {
 			d3.select(this).style('fill', 'black')
 		})
 		.on('click', function (d) {})
+}
+
+//Spider Chart
+function getPokemonByName(name) {
+	return P.getPokemonByName(name)
+}
+
+function createSpiderChart(data) {
+	const svgWidth = 600
+	const svgHeight = 600
+	const margin = { top: 50, right: 50, bottom: 50, left: 50 }
+	const width = svgWidth - margin.left - margin.right
+	const height = svgHeight - margin.top - margin.bottom
+
+	const svg = d3
+		.select('#spider-chart')
+		.append('svg')
+		.attr('width', svgWidth)
+		.attr('height', svgHeight)
+		.append('g')
+		.attr('transform', `translate(${margin.left},${margin.top})`)
+
+	const keys = Object.keys(data.stats)
+	const values = keys.map((key) => data.stats[key])
+
+	const x = d3.scaleBand().range([0, width]).domain(keys).padding(0.1)
+
+	const y = d3
+		.scaleLinear()
+		.range([height, 0])
+		.domain([0, d3.max(values)])
+
+	const line = d3
+		.line()
+		.x((d, i) => x(keys[i]))
+		.y((d) => y(d))
+
+	svg
+		.append('g')
+		.attr('transform', `translate(0,${height})`)
+		.call(d3.axisBottom(x))
+
+	svg.append('g').call(d3.axisLeft(y))
+
+	svg
+		.append('path')
+		.datum(values)
+		.attr('fill', 'none')
+		.attr('stroke', 'steelblue')
+		.attr('stroke-width', 1.5)
+		.attr('d', line)
 }
 
 // Main function to fetch data and create visualization

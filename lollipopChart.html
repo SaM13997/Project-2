@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Pokémon Weight Distribution</title>
+		<link
+			href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+			rel="stylesheet"
+		/>
+	</head>
+
+	<body class="bg-gray-100 flex items-center justify-center h-screen">
+		<div class="bg-white p-6 rounded-lg shadow-lg">
+			<h1 class="text-2xl font-semibold mb-4">Pokémon Weight Distribution</h1>
+			<div id="lollipop-chart" class=""></div>
+		</div>
+
+		<script src="https://d3js.org/d3.v7.min.js"></script>
+		<script src="https://unpkg.com/pokeapi-js-wrapper/dist/index.js"></script>
+
+		<script>
+			const PokeAPI = new Pokedex.Pokedex()
+
+			// Function to fetch Pokémon weight data
+			async function getPokemonWeights() {
+				const pokemonData = await PokeAPI.getPokemonsList({ limit: 20 })
+				const pokemonDetails = await Promise.all(
+					pokemonData.results.map((pokemon) =>
+						PokeAPI.getPokemonByName(pokemon.name)
+					)
+				)
+				const data = pokemonDetails.map((pokemon) => ({
+					name: pokemon.name,
+					weight: pokemon.weight,
+				}))
+				return data
+			}
+
+			// Function to create lollipop chart
+			async function createLollipopChart() {
+				const data = await getPokemonWeights()
+
+				const width = 800
+				const height = 600
+				const margin = { top: 30, right: 30, bottom: 50, left: 60 }
+
+				const svg = d3
+					.select('#lollipop-chart')
+					.append('svg')
+					.attr('width', width)
+					.attr('height', height)
+					.append('g')
+					.attr('transform', `translate(${margin.left},${margin.top})`)
+
+				const x = d3
+					.scaleBand()
+					.domain(data.map((d) => d.name))
+					.range([0, width - margin.left - margin.right])
+					.padding(0.1)
+
+				const y = d3
+					.scaleLinear()
+					.domain([0, d3.max(data, (d) => d.weight)])
+					.range([height - margin.top - margin.bottom, 0])
+
+				svg
+					.append('g')
+					.attr(
+						'transform',
+						`translate(0,${height - margin.top - margin.bottom})`
+					)
+					.call(d3.axisBottom(x))
+					.selectAll('text')
+					.attr('transform', 'rotate(-45)')
+					.style('text-anchor', 'end')
+
+				svg.append('g').call(d3.axisLeft(y))
+
+				svg
+					.selectAll('.dot')
+					.data(data)
+					.enter()
+					.append('circle')
+					.attr('cx', (d) => x(d.name) + x.bandwidth() / 2)
+					.attr('cy', height - margin.top - margin.bottom) // Start from bottom
+					.attr('r', 0) // Initially with radius 0
+					.attr('fill', 'steelblue')
+					.transition() // Add transition
+					.delay((d, i) => i * 100) // Delay each circle based on its index
+					.attr('cy', (d) => y(d.weight))
+					.attr('r', 5)
+
+				// Add lines with animation
+				svg
+					.selectAll('.line')
+					.data(data)
+					.enter()
+					.append('line')
+					.attr('x1', (d) => x(d.name) + x.bandwidth() / 2)
+					.attr('y1', height - margin.top - margin.bottom) // Start from bottom
+					.attr('x2', (d) => x(d.name) + x.bandwidth() / 2)
+					.attr('y2', height - margin.top - margin.bottom) // Start from bottom
+					.attr('stroke', 'black')
+					.transition() // Add transition
+					.delay((d, i) => i * 100) // Delay each line based on its index
+					.attr('y2', (d) => y(d.weight))
+			}
+
+			// Call the function to create lollipop chart
+			createLollipopChart()
+		</script>
+	</body>
+</html>
