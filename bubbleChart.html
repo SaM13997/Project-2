@@ -8,15 +8,32 @@
 		<script src="https://d3js.org/d3.v7.min.js"></script>
 	</head>
 
-	<body class="bg-gray-100 flex items-center justify-center h-screen">
-		<div
-			class="bg-white flex flex-col p-6 rounded-lg shadow-lg max-w-[1200px] max-h-[900px] w-full"
-		>
-			<h1 class="text-3xl font-semibold mb-4 text-center">
-				Pokémon Attack Power Bubble Chart
-			</h1>
-			<div class="w-92 h-92" id="bubble-chart"></div>
+	<body
+		class="h-dvh w-dvh overflow-x-hidden flex flex-col p-8 justify-between items-center"
+	>
+		<div>
+			<p class="text-4xl font-bold">Pokemon Data Visualization</p>
+			<div
+				class="flex justify-evenly items-center gap-8 m-2 mb-8 py-4 px-8 rounded-xl shadow-md"
+			>
+				<a href="index.html">Bar Chart</a>
+				<a href="pieChart.html">Pie Chart</a>
+				<a href="bubbleChart.html">Bubble Chart</a>
+				<a href="lineChart.html">Line Chart</a>
+				<a href="lollipopChart.html">Lollipop Chart</a>
+				<a href="chordDiagram.html">Chord Diagram</a>
+			</div>
 		</div>
+		<div class="flex flex-col gap-2 justify-center items-center">
+			<p class="text-2xl font-semibold">Pokémon Attack Power Bubble Chart</p>
+			<div
+				class="w-[700px] m-8 border border-zinc-300 p-8 rounded-xl shadow-md overflow-clip"
+			>
+				<div id="bubble-chart" class="overflow-clip overflow-x-auto"></div>
+			</div>
+		</div>
+		<div class="footer"></div>
+
 		<script src="https://unpkg.com/pokeapi-js-wrapper/dist/index.js"></script>
 
 		<script>
