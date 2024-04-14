@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Pokémon Attack Power Bubble Chart</title>
+		<script src="https://d3js.org/d3.v7.min.js"></script>
+	</head>
+
+	<body
+		class="bg-gray-100 flex flex-col items-center justify-center min-h-screen"
+	>
+		<div class="bg-white p-6 rounded-lg shadow-lg">
+			<h1 class="text-3xl font-semibold mb-4">
+				Pokémon Attack Power Bubble Chart
+			</h1>
+			<div id="bubble-chart" class="w-full h-full"></div>
+		</div>
+		<script src="https://unpkg.com/pokeapi-js-wrapper/dist/index.js"></script>
+
+		<script>
+			const PokeAPI = new Pokedex.Pokedex()
+
+			// Function to generate random pastel color
+			function getRandomPastelColor() {
+				const hue = Math.floor(Math.random() * 360)
+				const pastel = 'hsl(' + hue + ', 100%, 85%)'
+				return pastel
+			}
+
+			// Function to fetch Pokémon data
+			async function getPokemonData() {
+				try {
+					const response = await PokeAPI.getPokemonsList({ limit: 100 })
+					const pokemonList = response.results
+					const promises = pokemonList.map(async (pokemon, index) => {
+						const pokemonData = await PokeAPI.getPokemonByName(pokemon.name)
+						return {
+							id: pokemonData.name,
+							value: pokemonData.stats.find(
+								(stat) => stat.stat.name === 'attack'
+							).base_stat,
+						}
+					})
+					return Promise.all(promises)
+				} catch (error) {
+					console.error('Error fetching Pokémon data:', error)
+				}
+			}
+
+			// Function to create bubble chart
+			async function createBubbleChart() {
+				const data = await getPokemonData()
+
+				// Specify the dimensions of the chart.
+				const width = 928
+				const height = width
+				const margin = 1 // to avoid clipping the root circle stroke
+				const name = (d) => d.id // Name is Pokémon name
+				const group = (d) => '' // No group
+				const format = d3.format(',d')
+
+				// Create a pack layout.
+				const pack = d3
+					.pack()
+					.size([width - margin * 2, height - margin * 2])
+					.padding(3)
+
+				// Compute the hierarchy from the (flat) data; expose the values
+				// for each node; lastly apply the pack layout.
+				const root = pack(d3.hierarchy({ children: data }).sum((d) => d.value))
+
+				// Create the SVG container.
+				const svg = d3
+					.create('svg')
+					.attr('width', width)
+					.attr('height', height)
+					.attr('viewBox', [-margin, -margin, width, height])
+					.attr(
+						'style',
+						'max-width: 100%; height: auto; font: 10px sans-serif;'
+					)
+					.attr('text-anchor', 'middle')
+
+				// Place each (leaf) node according to the layout’s x and y values.
+				const node = svg
+					.append('g')
+					.selectAll()
+					.data(root.leaves())
+					.join('g')
+					.attr('transform', (d) => `translate(${d.x},${d.y})`)
+
+				// Add a title.
+				node.append('title').text((d) => `${d.data.id}\n${format(d.value)}`)
+
+				// Add a filled circle.
+				node
+					.append('circle')
+					.attr('fill-opacity', 0.7)
+					.attr('fill', getRandomPastelColor())
+					.attr('r', (d) => d.r)
+
+				// Add a label.
+				const text = node
+					.append('text')
+					.attr('clip-path', (d) => `circle(${d.r})`)
+
+				// Add a tspan for the Pokémon name.
+				text
+					.append('tspan')
+					.attr('x', 0)
+					.attr('y', '-0.35em')
+					.text((d) => name(d.data))
+
+				// Add a tspan for the Pokémon's attack value.
+				text
+					.append('tspan')
+					.attr('x', 0)
+					.attr('y', '0.35em')
+					.attr('fill-opacity', 0.7)
+					.text((d) => format(d.value))
+
+				return svg.node()
+			}
+
+			// Append the bubble chart SVG to the DOM
+			async function appendBubbleChart() {
+				const bubbleChart = await createBubbleChart()
+				document.getElementById('bubble-chart').appendChild(bubbleChart)
+			}
+
+			appendBubbleChart()
+		</script>
+	</body>
+</html>
