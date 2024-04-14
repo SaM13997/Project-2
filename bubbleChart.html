@@ -4,17 +4,18 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Pokémon Attack Power Bubble Chart</title>
+		<script src="https://cdn.tailwindcss.com"></script>
 		<script src="https://d3js.org/d3.v7.min.js"></script>
 	</head>
 
-	<body
-		class="bg-gray-100 flex flex-col items-center justify-center min-h-screen"
-	>
-		<div class="bg-white p-6 rounded-lg shadow-lg">
-			<h1 class="text-3xl font-semibold mb-4">
+	<body class="bg-gray-100 flex items-center justify-center h-screen">
+		<div
+			class="bg-white flex flex-col p-6 rounded-lg shadow-lg max-w-[1200px] max-h-[900px] w-full"
+		>
+			<h1 class="text-3xl font-semibold mb-4 text-center">
 				Pokémon Attack Power Bubble Chart
 			</h1>
-			<div id="bubble-chart" class="w-full h-full"></div>
+			<div class="w-92 h-92" id="bubble-chart"></div>
 		</div>
 		<script src="https://unpkg.com/pokeapi-js-wrapper/dist/index.js"></script>
 
@@ -47,7 +48,11 @@
 					console.error('Error fetching Pokémon data:', error)
 				}
 			}
-
+			function getRandomPastelColor() {
+				const hue = Math.floor(Math.random() * 360)
+				const pastel = 'hsl(' + hue + ', 100%, 85%)'
+				return pastel
+			}
 			// Function to create bubble chart
 			async function createBubbleChart() {
 				const data = await getPokemonData()
@@ -96,9 +101,13 @@
 				// Add a filled circle.
 				node
 					.append('circle')
-					.attr('fill-opacity', 0.7)
-					.attr('fill', getRandomPastelColor())
+					.attr('fill-opacity', 0)
+					.attr('fill', () => getRandomPastelColor()) // Random pastel color
+					.attr('r', 0)
+					.transition()
+					.duration(1000)
 					.attr('r', (d) => d.r)
+					.attr('fill-opacity', 0.7) // Fade in the circle
 
 				// Add a label.
 				const text = node
